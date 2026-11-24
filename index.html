@@ -7,54 +7,44 @@
 <style>
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:#eaf4f3;color:#13201f;word-break:keep-all}
   .box{max-width:420px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:0 24px;box-sizing:border-box;text-align:center}
-  .spin{width:34px;height:34px;margin:0 auto 14px;border:4px solid #cfe3e1;border-top-color:#0d6b73;border-radius:50%;animation:r .8s linear infinite}
+  .spin{width:34px;height:34px;margin:0 auto 16px;border:4px solid #cfe3e1;border-top-color:#0d6b73;border-radius:50%;animation:r .8s linear infinite}
   @keyframes r{to{transform:rotate(360deg)}}
-  h1{font-size:22px;line-height:1.4;margin:0 0 10px}
-  p{font-size:15px;line-height:1.6;margin:0;color:#3b4a48}
-  a.btn{display:block;padding:17px;border-radius:14px;font-weight:700;font-size:17px;text-decoration:none;margin-top:12px}
-  .main{background:#0d6b73;color:#fff;margin-top:24px!important}
-  .sub{color:#0d6b73;font-size:15px!important;font-weight:600!important}
-  .how{background:#fff;border-radius:14px;padding:16px;margin-top:20px;font-size:16px;line-height:1.7}
-  .how b{color:#0d6b73}
-  .en{font-size:13px;color:#6b7a78;margin-top:16px}
+  p{font-size:16px;line-height:1.6;margin:0;color:#3b4a48}
+  a{display:inline-block;margin-top:22px;color:#0d6b73;font-weight:600;font-size:15px}
 </style>
 </head>
 <body>
-<div class="box" id="box"><div class="spin"></div><p>제주 안전알림 여는 중…</p></div>
+<div class="box"><div class="spin"></div><p id="msg">📍 내 위치 확인 중…<br><span style="font-size:13px;color:#6b7a78">Checking your location…</span></p><a id="skip" href="#">위치 없이 열기 · Skip</a></div>
 <script>
 var APP = "https://script.google.com/macros/s/AKfycbzT2zgDrFZypUbcVXKcAr89ChENgLj-P6aeJSzjDWPqjWyO9woyJVm2I9dKrr85rgB-/exec";
 var ua = navigator.userAgent || "";
 var inApp = /Instagram|FBAN|FBAV|KAKAOTALK|NAVER|Line\/|Threads/i.test(ua);
-var android = /Android/i.test(ua);
-var INTENT = "intent://" + APP.replace(/^https:\/\//, "") +
-  "#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=" + encodeURIComponent(APP) + ";end";
+document.getElementById("skip").href = APP;
 
-if (!inApp) {
-  location.replace(APP);
-} else {
-  // 자동으로 먼저 시도
-  if (android) location.href = INTENT; else location.href = "x-safari-" + APP;
-  // 그대로 남아 있으면(앱이 막은 경우) 버튼 한 번으로 열기
-  setTimeout(function(){ if (!document.hidden) show(); }, 900);
+// 사이트(Index.html)의 AREAS 순서와 같아야 함
+var AREAS = ['제주시 시내','제주시 동쪽','제주시 서쪽','서귀포시 시내','서귀포시 동쪽','서귀포시 서쪽','한라산 산지'];
+function km(a, b){ var R=6371, r=function(x){return x*Math.PI/180}, dLa=r(b[0]-a[0]), dLo=r(b[1]-a[1]);
+  var h=Math.sin(dLa/2)*Math.sin(dLa/2)+Math.cos(r(a[0]))*Math.cos(r(b[0]))*Math.sin(dLo/2)*Math.sin(dLo/2);
+  return 2*R*Math.asin(Math.sqrt(h)); }
+function areaFromCoords(lat, lng){
+  if (km([lat,lng],[33.3617,126.5292]) <= 9) return '한라산 산지';
+  if (lat >= 33.36) return lng > 126.62 ? '제주시 동쪽' : lng < 126.43 ? '제주시 서쪽' : '제주시 시내';
+  return lng > 126.62 ? '서귀포시 동쪽' : lng < 126.38 ? '서귀포시 서쪽' : '서귀포시 시내';
 }
 
-function show() {
-  var b = document.getElementById("box");
-  if (android) {
-    b.innerHTML =
-      '<h1>📍 위치를 쓰려면<br>크롬에서 열어 주세요</h1>' +
-      '<p>인스타 안에서는 위치 정보가 막혀 있어요.</p>' +
-      '<a class="btn main" href="' + INTENT + '">크롬으로 열기</a>' +
-      '<a class="btn sub" href="' + APP + '">그냥 여기서 열기 (지역 직접 선택)</a>' +
-      '<p class="en">Location is blocked inside Instagram. Tap “크롬으로 열기” to open in Chrome.</p>';
-  } else {
-    b.innerHTML =
-      '<h1>📍 위치를 쓰려면<br>사파리에서 열어 주세요</h1>' +
-      '<p>인스타 안에서는 위치 정보가 막혀 있어요.</p>' +
-      '<div class="how">오른쪽 위 <b>⋯</b> 누르고<br><b>"외부 브라우저에서 열기"</b></div>' +
-      '<a class="btn sub" href="' + APP + '">그냥 여기서 열기 (지역 직접 선택)</a>' +
-      '<p class="en">Location is blocked inside Instagram. Tap ⋯ at the top right → “Open in external browser”.</p>';
-  }
+var done = false;
+function go(url){ if (done) return; done = true; location.replace(url); }
+
+if (!inApp || !navigator.geolocation) {
+  go(APP);   // 일반 브라우저는 사이트 안에서 위치를 켤 수 있으니 바로 이동
+} else {
+  // 앱 안 브라우저: 사이트 안(구글 iframe)에서는 위치가 막혀서, 여기서 먼저 받아 지역만 넘김
+  // 정확한 좌표는 넘기지 않고 지역 번호(0~6)만 넘김
+  navigator.geolocation.getCurrentPosition(function(p){
+    var i = AREAS.indexOf(areaFromCoords(p.coords.latitude, p.coords.longitude));
+    go(APP + "?a=" + i);
+  }, function(){ go(APP); }, { timeout: 9000, maximumAge: 300000 });
+  setTimeout(function(){ go(APP); }, 15000);
 }
 </script>
 <noscript><meta http-equiv="refresh" content="0; url=https://script.google.com/macros/s/AKfycbzT2zgDrFZypUbcVXKcAr89ChENgLj-P6aeJSzjDWPqjWyO9woyJVm2I9dKrr85rgB-/exec"></noscript>
