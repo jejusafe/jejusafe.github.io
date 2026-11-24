@@ -5,35 +5,56 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>제주 안전알림</title>
 <style>
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:#eaf4f3;color:#13201f}
-  .box{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:14px}
-  .spin{width:34px;height:34px;border:4px solid #cfe3e1;border-top-color:#0d6b73;border-radius:50%;animation:r .8s linear infinite}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:#eaf4f3;color:#13201f;word-break:keep-all}
+  .box{max-width:420px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:0 24px;box-sizing:border-box;text-align:center}
+  .spin{width:34px;height:34px;margin:0 auto 14px;border:4px solid #cfe3e1;border-top-color:#0d6b73;border-radius:50%;animation:r .8s linear infinite}
   @keyframes r{to{transform:rotate(360deg)}}
-  p{margin:0;font-size:15px;color:#3b4a48}
+  h1{font-size:22px;line-height:1.4;margin:0 0 10px}
+  p{font-size:15px;line-height:1.6;margin:0;color:#3b4a48}
+  a.btn{display:block;padding:17px;border-radius:14px;font-weight:700;font-size:17px;text-decoration:none;margin-top:12px}
+  .main{background:#0d6b73;color:#fff;margin-top:24px!important}
+  .sub{color:#0d6b73;font-size:15px!important;font-weight:600!important}
+  .how{background:#fff;border-radius:14px;padding:16px;margin-top:20px;font-size:16px;line-height:1.7}
+  .how b{color:#0d6b73}
+  .en{font-size:13px;color:#6b7a78;margin-top:16px}
 </style>
 </head>
 <body>
-<div class="box"><div class="spin"></div><p>제주 안전알림 여는 중…</p></div>
+<div class="box" id="box"><div class="spin"></div><p>제주 안전알림 여는 중…</p></div>
 <script>
 var APP = "https://script.google.com/macros/s/AKfycbzT2zgDrFZypUbcVXKcAr89ChENgLj-P6aeJSzjDWPqjWyO9woyJVm2I9dKrr85rgB-/exec";
 var ua = navigator.userAgent || "";
 var inApp = /Instagram|FBAN|FBAV|KAKAOTALK|NAVER|Line\/|Threads/i.test(ua);
 var android = /Android/i.test(ua);
-var ios = /iPhone|iPad|iPod/i.test(ua);
+var INTENT = "intent://" + APP.replace(/^https:\/\//, "") +
+  "#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=" + encodeURIComponent(APP) + ";end";
 
 if (!inApp) {
   location.replace(APP);
 } else {
+  // 자동으로 먼저 시도
+  if (android) location.href = INTENT; else location.href = "x-safari-" + APP;
+  // 그대로 남아 있으면(앱이 막은 경우) 버튼 한 번으로 열기
+  setTimeout(function(){ if (!document.hidden) show(); }, 900);
+}
+
+function show() {
+  var b = document.getElementById("box");
   if (android) {
-    // 안드로이드: 크롬(없으면 기본 브라우저)으로 바로 넘김
-    location.href = "intent://" + APP.replace(/^https:\/\//, "") +
-      "#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=" + encodeURIComponent(APP) + ";end";
-  } else if (ios) {
-    // 아이폰: 사파리로 넘기기 시도 (앱이 막으면 아무 일도 안 일어남)
-    location.href = "x-safari-" + APP;
+    b.innerHTML =
+      '<h1>📍 위치를 쓰려면<br>크롬에서 열어 주세요</h1>' +
+      '<p>인스타 안에서는 위치 정보가 막혀 있어요.</p>' +
+      '<a class="btn main" href="' + INTENT + '">크롬으로 열기</a>' +
+      '<a class="btn sub" href="' + APP + '">그냥 여기서 열기 (지역 직접 선택)</a>' +
+      '<p class="en">Location is blocked inside Instagram. Tap “크롬으로 열기” to open in Chrome.</p>';
+  } else {
+    b.innerHTML =
+      '<h1>📍 위치를 쓰려면<br>사파리에서 열어 주세요</h1>' +
+      '<p>인스타 안에서는 위치 정보가 막혀 있어요.</p>' +
+      '<div class="how">오른쪽 위 <b>⋯</b> 누르고<br><b>"외부 브라우저에서 열기"</b></div>' +
+      '<a class="btn sub" href="' + APP + '">그냥 여기서 열기 (지역 직접 선택)</a>' +
+      '<p class="en">Location is blocked inside Instagram. Tap ⋯ at the top right → “Open in external browser”.</p>';
   }
-  // 외부 브라우저로 못 넘어가면 1.2초 뒤 그냥 앱 안에서 사이트 열기
-  setTimeout(function(){ if (!document.hidden) location.replace(APP); }, 1200);
 }
 </script>
 <noscript><meta http-equiv="refresh" content="0; url=https://script.google.com/macros/s/AKfycbzT2zgDrFZypUbcVXKcAr89ChENgLj-P6aeJSzjDWPqjWyO9woyJVm2I9dKrr85rgB-/exec"></noscript>
