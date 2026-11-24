@@ -15,6 +15,12 @@
   .btn{margin-top:34px;background:#fff;color:#0d6b73;font-weight:800;font-size:19px;padding:18px 44px;border-radius:999px;animation:b 1.4s ease-in-out infinite}
   @keyframes b{50%{transform:scale(1.06)}}
   .en{margin-top:14px;font-size:13px;opacity:.7}
+  #ios{display:none;min-height:100%;padding:90px 28px 0;box-sizing:border-box;text-align:center}
+  #ios .arrow{position:fixed;top:10px;right:18px;font-size:46px;animation:u 1s ease-in-out infinite}
+  @keyframes u{50%{transform:translate(4px,-8px)}}
+  #ios .card{background:#fff;color:#13201f;border-radius:18px;padding:22px 18px;margin-top:24px;font-size:17px;line-height:1.7}
+  #ios .card b{color:#0d6b73}
+  #ios .alt{display:block;margin-top:18px;color:#fff;font-size:15px;font-weight:700}
   #here{position:fixed;left:0;right:0;bottom:28px;text-align:center;color:#cfe9e7;font-size:13px}
 </style>
 </head>
@@ -26,6 +32,15 @@
   <div class="btn">👆 눌러서 열기</div>
   <div class="en">Tap anywhere to open</div>
 </a>
+<div id="ios">
+  <div class="arrow">↗</div>
+  <div class="logo" style="margin:0 auto 16px"><i></i></div>
+  <h1>제주 안전알림</h1>
+  <p>위치까지 쓰려면 사파리에서 열어 주세요</p>
+  <div class="card">오른쪽 위 <b>⋯</b> 누르고<br><b>“외부 브라우저에서 열기”</b></div>
+  <p class="en" style="margin-top:12px">Tap ⋯ at the top right → “Open in external browser”</p>
+  <a class="alt" id="gc" href="#">크롬 앱이 있으면 → 크롬으로 열기</a>
+</div>
 <a id="here" href="#">인스타 안에서 열기 (위치 사용 불가)</a>
 <script>
 var APP = "https://script.google.com/macros/s/AKfycbzT2zgDrFZypUbcVXKcAr89ChENgLj-P6aeJSzjDWPqjWyO9woyJVm2I9dKrr85rgB-/exec";
@@ -41,9 +56,16 @@ var OUT = android
 if (!inApp) {
   location.replace(APP);
 } else {
-  document.getElementById("tap").href = OUT;   // 인스타는 '직접 누른 링크'만 밖으로 보내줌
   document.getElementById("here").href = APP;
-  try { location.href = OUT; } catch (e) {}     // 자동 이동을 허용하는 폰이면 바로 넘어감
+  if (android) {
+    document.getElementById("tap").href = OUT;   // 인스타는 '직접 누른 링크'만 밖으로 보내줌
+    try { location.href = OUT; } catch (e) {}     // 자동 이동을 허용하는 폰이면 바로 넘어감
+  } else {
+    // 아이폰 인스타는 사파리로 넘기는 링크를 막음 → ⋯ 메뉴 안내 + 크롬 앱(있을 때만)
+    document.getElementById("tap").style.display = "none";
+    document.getElementById("ios").style.display = "block";
+    document.getElementById("gc").href = "googlechromes://" + H;
+  }
 }
 </script>
 <noscript><meta http-equiv="refresh" content="0; url=https://script.google.com/macros/s/AKfycbzT2zgDrFZypUbcVXKcAr89ChENgLj-P6aeJSzjDWPqjWyO9woyJVm2I9dKrr85rgB-/exec"></noscript>
