@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>브라우저 전환 테스트</title>
+<style>
+  body{margin:0;padding:24px;font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:#eaf4f3;color:#13201f}
+  h1{font-size:20px;margin:0 0 6px} p{font-size:14px;color:#3b4a48;margin:0 0 18px;line-height:1.5}
+  a{display:block;margin:10px 0;padding:16px;border-radius:12px;background:#0d6b73;color:#fff;font-weight:700;font-size:16px;text-decoration:none}
+  a small{display:block;font-weight:400;font-size:12px;opacity:.8;margin-top:3px}
+  .ua{font-size:11px;color:#6b7a78;word-break:break-all;margin-top:20px}
+</style>
+</head>
+<body>
+<h1>브라우저 전환 테스트</h1>
+<p>인스타 안에서 이 페이지를 열고, 버튼을 하나씩 눌러서<br>삼성 인터넷 / 사파리로 넘어가는 번호를 알려 주세요.</p>
+<div id="list"></div>
+<div class="ua" id="ua"></div>
+<script>
+var U = "https://jejusafe.github.io/";
+var H = U.replace(/^https:\/\//, "");
+var tests = [
+  ["A", "삼성 인터넷 (intent + 패키지)", "intent://" + H + "#Intent;scheme=https;package=com.sec.android.app.sbrowser;end"],
+  ["B", "삼성 인터넷 (intent + 대체주소)", "intent://" + H + "#Intent;scheme=https;package=com.sec.android.app.sbrowser;S.browser_fallback_url=" + encodeURIComponent(U) + ";end"],
+  ["C", "기본 브라우저 (intent, 앱 지정 없음)", "intent://" + H + "#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end"],
+  ["D", "삼성 인터넷 전용 주소", "samsunginternet://open?url=" + encodeURIComponent(U)],
+  ["E", "크롬 전용 주소", "googlechrome://navigate?url=" + encodeURIComponent(U)],
+  ["F", "사파리 (아이폰)", "x-safari-" + U],
+  ["G", "크롬 (아이폰)", "googlechromes://" + H]
+];
+var html = "";
+tests.forEach(function(t){ html += '<a href="' + t[2] + '">' + t[0] + '. ' + t[1] + '<small>' + t[2].slice(0, 60) + '…</small></a>'; });
+document.getElementById("list").innerHTML = html;
+document.getElementById("ua").textContent = navigator.userAgent;
+</script>
+</body>
+</html>
