@@ -44,7 +44,8 @@
 <a id="here" href="#">인스타 안에서 열기 (위치 사용 불가)</a>
 <script>
 var APP = "https://script.google.com/macros/s/AKfycbzT2zgDrFZypUbcVXKcAr89ChENgLj-P6aeJSzjDWPqjWyO9woyJVm2I9dKrr85rgB-/exec";
-var H = APP.replace(/^https:\/\//, "");
+var IG = /Instagram/i.test(navigator.userAgent || "");
+var H = APP.replace(/^https:\/\//, "") + (IG ? "?src=ig" : "");
 var ua = navigator.userAgent || "";
 var inApp = /Instagram|FBAN|FBAV|KAKAOTALK|NAVER|Line\/|Threads/i.test(ua);
 var android = /Android/i.test(ua);
